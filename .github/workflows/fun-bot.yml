@@ -2,36 +2,32 @@ name: FUN 24/7 Messenger
 
 on:
   schedule:
-    - cron: "0 */6 * * *"   # start every 6 hours (UTC)
-  workflow_dispatch:        # allow manual start
-
-concurrency:
-  group: fun-bot
-  cancel-in-progress: true  # avoid overlapping runners
+    - cron: "*/2 * * * *"   # Har 2 min me run
+  workflow_dispatch:         # Manual run option
 
 jobs:
-  worker:
+  run-bot:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v4
         with:
-          python-version: "3.11"
+          python-version: "3.10"
 
-      - name: Install deps
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run bot for 6h, sending every 2 min
+      - name: Run bot
         env:
           API_ID: ${{ secrets.API_ID }}
           API_HASH: ${{ secrets.API_HASH }}
+          PHONE_NUMBER: ${{ secrets.PHONE_NUMBER }}
           STRING_SESSION: ${{ secrets.STRING_SESSION }}
-          TARGET_CHAT: ${{ secrets.TARGET_CHAT }}
-          INTERVAL_SECONDS: "120"   # 2 minutes
-          DURATION_MINUTES: "360"   # 6 hours per run
+          CHAT_ID: ${{ secrets.CHAT_ID }}
         run: python main.py
